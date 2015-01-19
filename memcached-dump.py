@@ -2,15 +2,17 @@
 #coding=utf-8
 
 import socket,re
-import sys
+import sys,argparse
+import json
 
 class dump(object):
 
-	def __init__(self,host,port):
+	def __init__(self,**kwargs):
 		socket.setdefaulttimeout(10)
 		self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-		self.s.connect((host,port))
-
+		self.s.connect((kwargs.get('host'),kwargs.get('port')))
+		
+	#return [{'key':key,'len':4,'value':'1234'}]
 	def __enter__(self):
 		result = []
 		itemsPack = self.__sendCmd('stats items\n') 
@@ -18,8 +20,7 @@ class dump(object):
 		keys = self.__unpackKeys(items)
 		for d in self.__getData(keys):
 			result.append({"key":d[0],"len":d[1],"value":d[2]})
-		return result
-
+		return result	
 	def __exit__(self,*args):
 		return self.s.close()
 
@@ -38,6 +39,7 @@ class dump(object):
 	def __unpackItems(self,data):
 		items = re.findall('STAT items:(\d+):number (\d+)',data)
 		return items
+
 	def __unpackKeys(self,data):
 		keys = list()
 		for item in data:
@@ -56,9 +58,19 @@ class dump(object):
 			
 	
 if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--host',action='store',dest='host',default='127.0.0.1',help='memcached server host,default[127.0.0.1]')
+	parser.add_argument('--port',action='store',dest='port',default='11211',help='memcached server port,default[11211]')
+	parser.add_argument('--path',action='store',dest='path',default='/tmp/memcached.json',help='File path,default[/tmp/memcached.json]')
+	args = parser.parse_args()
+	hostPort = {'host':args.host,'port':int(args.port)}
 	try:
-		with dump('127.0.0.1',11211) as s:
-			for item in s:
-				print item['key'],':',item['value'] 
+		with dump(**hostPort) as dumpInst:
+			data = dumpInst
 	except:
-		print >>sys.stderr,'can\'t dump data from %s:%s' %('127.0.0.1',11211)
+		print >>sys.stderr,'can\'t dump data from %s:%s' %(args.host,args.port)
+	try:	
+		with open(args.path,'w') as fp:
+			json.dump(data,fp)
+	except:
+		print >>sys.stderr,'can\'t opne or write file %s' % args.path
