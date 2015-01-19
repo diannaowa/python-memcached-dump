@@ -73,4 +73,4 @@ if __name__ == '__main__':
 		with open(args.path,'w') as fp:
 			json.dump(data,fp)
 	except:
-		print >>sys.stderr,'can\'t opne or write file %s' % args.path
+		print >>sys.stderr,'can\'t open or write file %s' % args.path
