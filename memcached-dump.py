@@ -19,6 +19,7 @@ class dump(object):
 		for d in self.__getData(keys):
 			result.append({"key":d[0],"len":d[1],"value":d[2]})
 		return result
+
 	def __exit__(self,*args):
 		return self.s.close()
 
@@ -45,7 +46,7 @@ class dump(object):
 			key = re.findall('ITEM ([^\s]+) \[(\d+) b',keyStr)
 			for k in key:
 				if int(k[1]) != 0:
-						keys.append((k[0],k[1]))
+	 				keys.append((k[0],k[1]))
 		return keys
 
 	def __getData(self,data):
