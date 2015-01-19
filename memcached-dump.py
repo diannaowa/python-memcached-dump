@@ -12,7 +12,7 @@ class dump(object):
 		self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 		self.s.connect((kwargs.get('host'),kwargs.get('port')))
 		
-	#return [{'key':key,'len':4,'value':'1234'}]
+	#return [{'key':'key','len':4,'value':'1234'}]
 	def __enter__(self):
 		result = []
 		itemsPack = self.__sendCmd('stats items\n') 
